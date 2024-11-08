@@ -1,5 +1,6 @@
 .env
+.idea
 vendor
-storage
+storage/clockwork
 node_modules
 public/build
