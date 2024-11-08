@@ -4,3 +4,4 @@ vendor
 storage/clockwork
 node_modules
 public/build
+/storage/cache/templates/
