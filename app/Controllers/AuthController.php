@@ -40,13 +40,18 @@ class AuthController
         $v = new Validator($data);
         $v->rule('required', ['name', 'email', 'password', 'confirmPassword']);
         $v->rule('email', 'email');
-        $v->rule('equals', 'password', 'confirmPassword')->label('Confirm Password');
+        $v->rule('equals', 'password', 'confirmPassword');
         $v->rule(
             fn ($field, $value, $params, $fields) =>
             ! $this->entityManager->getRepository(User::class)->findBy([$field => $value]),
             'email'
         )->message('User with given email already exists.');
-
+        $v->labels(array(
+            'name' => 'Name',
+            'email' => 'Email address',
+            'password' => 'Password',
+            'confirmPassword' => 'Confirm Password',
+        ));
         if ($v->validate()) {
             echo "Yay! We're all good!";
         } else {
