@@ -30,7 +30,7 @@ class AuthController
 
     public function logIn(Request $request, Response $response): Response
     {
-        return $response;
+        return $response->withHeader('Location', '/')->withStatus(302);
     }
 
     public function register(Request $request, Response $response): Response
@@ -70,5 +70,10 @@ class AuthController
 
 
         return $response;
+    }
+
+    public function logOut(Request $request, Response $response): Response
+    {
+        return $response->withHeader('Location', '/')->withStatus(302);
     }
 }
