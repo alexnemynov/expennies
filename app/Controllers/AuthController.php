@@ -28,11 +28,6 @@ class AuthController
         return $this->twig->render($response, 'auth/register.twig');
     }
 
-    public function logIn(Request $request, Response $response): Response
-    {
-        return $response->withHeader('Location', '/')->withStatus(302);
-    }
-
     public function register(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();
@@ -67,13 +62,38 @@ class AuthController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-
-
         return $response;
     }
 
+    public function logIn(Request $request, Response $response): Response
+    {
+        // 1. Validate request data
+        $data = $request->getParsedBody();
+
+        $v = new Validator($data);
+        $v->rule('required', ['email', 'password']);
+        $v->rule('email', 'email');
+
+        // 2. Check the user credentials
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+
+        if (! $user || ! password_verify($data['password'], $user->getPassword())) {
+            throw new ValidationException(['password' => ['You have entered wrong email or password.']]);
+        }
+
+        // 3. Save user id in the session
+        session_regenerate_id();
+        $_SESSION['user'] = $user->getId();
+
+        // 4. Redirect user to home page
+        return $response->withHeader('Location', '/')->withStatus(302);
+    }
+
+
     public function logOut(Request $request, Response $response): Response
     {
+        // TODO
+
         return $response->withHeader('Location', '/')->withStatus(302);
     }
 }

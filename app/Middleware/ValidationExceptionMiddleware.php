@@ -13,7 +13,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ValidationExceptionMiddleware implements MiddlewareInterface
 {
-    public function __construct(private ResponseFactoryInterface $responseFactory)
+    public function __construct(private readonly ResponseFactoryInterface $responseFactory)
     {
     }
 

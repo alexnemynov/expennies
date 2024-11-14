@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Config;
+use App\Middleware\AuthMiddleware;
 use App\Middleware\OldFormDataMiddleware;
 use App\Middleware\StartSessionMiddleware;
 use App\Middleware\ValidationErrorsMiddleware;
