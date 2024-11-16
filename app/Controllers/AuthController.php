@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Auth;
 use App\Entity\User;
 use App\Exception\ValidationException;
 use Doctrine\ORM\EntityManager;
@@ -14,8 +15,11 @@ use Valitron\Validator;
 
 class AuthController
 {
-    public function __construct(private readonly Twig $twig, private readonly EntityManager $entityManager)
-    {
+    public function __construct(
+        private readonly Twig $twig,
+        private readonly EntityManager $entityManager,
+        private readonly Auth $auth,
+    ) {
     }
 
     public function loginView(Request $request, Response $response): Response
@@ -67,32 +71,23 @@ class AuthController
 
     public function logIn(Request $request, Response $response): Response
     {
-        // 1. Validate request data
         $data = $request->getParsedBody();
 
         $v = new Validator($data);
         $v->rule('required', ['email', 'password']);
         $v->rule('email', 'email');
 
-        // 2. Check the user credentials
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
-
-        if (! $user || ! password_verify($data['password'], $user->getPassword())) {
+        if (! $this->auth->attemptLogin($data)) {
             throw new ValidationException(['password' => ['You have entered wrong email or password.']]);
-        }
+        };
 
-        // 3. Save user id in the session
-        session_regenerate_id();
-        $_SESSION['user'] = $user->getId();
-
-        // 4. Redirect user to home page
         return $response->withHeader('Location', '/')->withStatus(302);
     }
 
 
     public function logOut(Request $request, Response $response): Response
     {
-        // TODO
+        $this->auth->logOut();
 
         return $response->withHeader('Location', '/')->withStatus(302);
     }
