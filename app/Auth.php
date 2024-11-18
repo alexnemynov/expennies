@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App;
 
@@ -8,6 +8,7 @@ use App\Contracts\AuthInterface;
 use App\Contracts\SessionInterface;
 use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
+use App\DataObjects\RegisterUserData;
 
 class Auth implements AuthInterface
 {
@@ -15,7 +16,7 @@ class Auth implements AuthInterface
 
     public function __construct(
         private readonly UserProviderServiceInterface $userProvider,
-        private readonly SessionInterface $session,
+        private readonly SessionInterface $session
     ) {
     }
 
@@ -27,32 +28,30 @@ class Auth implements AuthInterface
 
         $userId = $this->session->get('user');
 
-        if ($userId === null) {
+        if (! $userId) {
             return null;
         }
 
         $user = $this->userProvider->getById($userId);
 
-        if ($user === null) {
+        if (! $user) {
             return null;
         }
 
-        return $this->user = $user;
+        $this->user = $user;
+
+        return $this->user;
     }
 
     public function attemptLogin(array $credentials): bool
     {
         $user = $this->userProvider->getByCredentials($credentials);
 
-        if (! $user || $this->checkCredentials($user, $credentials)) {
+        if (! $user || ! $this->checkCredentials($user, $credentials)) {
             return false;
         }
 
-        $this->session->regenerate();
-
-        $this->session->put('user', $user->getId());
-
-        $this->user = $user;
+        $this->logIn($user);
 
         return true;
     }
@@ -68,5 +67,22 @@ class Auth implements AuthInterface
         $this->session->regenerate();
 
         $this->user = null;
+    }
+
+    public function register(RegisterUserData $data): UserInterface
+    {
+        $user = $this->userProvider->createUser($data);
+
+        $this->logIn($user);
+
+        return $user;
+    }
+
+    public function logIn(UserInterface $user): void
+    {
+        $this->session->regenerate();
+        $this->session->put('user', $user->getId());
+
+        $this->user = $user;
     }
 }

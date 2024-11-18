@@ -76,7 +76,6 @@ class Session implements SessionInterface
 
     public function flash(string $key, array $messages): void
     {
-
         $_SESSION[$this->options->flashName][$key] = $messages;
     }
 
