@@ -18,12 +18,12 @@ class UserProviderService implements UserProviderServiceInterface
     {
     }
 
-    public function getById(int $id): UserInterface
+    public function getById(int $id): ?UserInterface
     {
         return $this->entityManager->getRepository(User::class)->find($id);
     }
 
-    public function getByCredentials(array $credentials): UserInterface
+    public function getByCredentials(array $credentials): ?UserInterface
     {
         return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $credentials['email']]);
     }

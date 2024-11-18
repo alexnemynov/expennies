@@ -13,7 +13,6 @@ use App\RequestValidators\UserLoginRequestValidator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
-use Valitron\Validator;
 
 class AuthController
 {
