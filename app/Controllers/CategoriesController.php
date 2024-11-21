@@ -26,6 +26,7 @@ class CategoriesController
         return $this->twig->render(
             $response,
             'categories/index.twig',
+            ['categories' => $this->categoryService->getAll()]
         );
     }
 
