@@ -9,6 +9,7 @@ use App\Middleware\StartSessionMiddleware;
 use App\Middleware\ValidationErrorsMiddleware;
 use App\Middleware\ValidationExceptionMiddleware;
 use Slim\App;
+use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
@@ -25,6 +26,7 @@ return function (App $app) {
     $app->add(ValidationErrorsMiddleware::class);
     $app->add(OldFormDataMiddleware::class);
     $app->add(StartSessionMiddleware::class);
+    $app->add(BodyParsingMiddleware::class);
 
     // Logger
     $app->addErrorMiddleware(
