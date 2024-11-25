@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Controllers;
 
@@ -28,27 +28,27 @@ class CategoriesController
         return $this->twig->render(
             $response,
             'categories/index.twig',
-            ['categories' => $this->categoryService->getAll()]
+            [
+                'categories' => $this->categoryService->getAll(),
+            ]
         );
     }
 
     public function store(Request $request, Response $response): Response
     {
-        // 1. Validate request data
-        $data = $this->requestValidatorFactory
-            ->make(CreateCategoryRequestValidator::class)
-            ->validate($request->getParsedBody());
+        $data = $this->requestValidatorFactory->make(CreateCategoryRequestValidator::class)->validate(
+            $request->getParsedBody()
+        );
 
-        // 2. Create a new category record in the database
         $this->categoryService->create($data['name'], $request->getAttribute('user'));
 
-        // 3. Redirect the User
         return $response->withHeader('Location', '/categories')->withStatus(302);
     }
 
     public function delete(Request $request, Response $response, array $args): Response
     {
         $this->categoryService->delete((int) $args['id']);
+
         return $response->withHeader('Location', '/categories')->withStatus(302);
     }
 
@@ -62,15 +62,14 @@ class CategoriesController
 
         $data = ['id' => $category->getId(), 'name' => $category->getName()];
 
-        // NO LONGER NEED TO REDIRECT CAUSE ITS NOW AJAX CODE
         return $this->responseFormatter->asJson($response, $data);
     }
 
     public function update(Request $request, Response $response, array $args): Response
     {
-        $data = $this->requestValidatorFactory
-            ->make(UpdateCategoryRequestValidator::class)
-            ->validate($args + $request->getParsedBody());
+        $data = $this->requestValidatorFactory->make(UpdateCategoryRequestValidator::class)->validate(
+            $args + $request->getParsedBody()
+        );
 
         $category = $this->categoryService->getById((int) $data['id']);
 

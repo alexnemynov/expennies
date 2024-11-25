@@ -17,7 +17,15 @@ const ajax = (url, method = 'get', data = {}) => {
         url += '?' + (new URLSearchParams(data)).toString();
     }
 
-    return fetch(url, options).then(response => response.json())
+    return fetch(url, options).then(response => {
+        if (! response.ok) {
+            if (response.status === 422) {
+                console.log('Validation Errors')
+            }
+        }
+
+        return response
+    })
 }
 
 const get  = (url, data) => ajax(url, 'get', data)

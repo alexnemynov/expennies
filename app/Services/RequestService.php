@@ -32,6 +32,6 @@ class RequestService
 
     public function isXhr(ServerRequestInterface $request): bool
     {
-        return $request->getHeader('X-Requested-With') === 'XMLHttpRequest';
+        return $request->hasHeader('X-Requested-With');
     }
 }

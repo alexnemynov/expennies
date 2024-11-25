@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Middleware;
 
@@ -35,9 +35,8 @@ class ValidationExceptionMiddleware implements MiddlewareInterface
                 return $this->responseFormatter->asJson($response->withStatus(422), $e->errors);
             }
 
-
-            $referer = $this->requestService->getReferer($request);
-            $oldData = $request->getParsedBody();
+            $referer  = $this->requestService->getReferer($request);
+            $oldData  = $request->getParsedBody();
 
             $sensitiveFields = ['password', 'confirmPassword'];
 
