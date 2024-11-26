@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Services;
 
@@ -13,15 +13,14 @@ class CategoryService
     public function __construct(private readonly EntityManager $entityManager)
     {
     }
+
     public function create(string $name, User $user): Category
     {
         $category = new Category();
 
         $category->setUser($user);
 
-        $this->update($category, $name);
-
-        return $category;
+        return $this->update($category, $name);
     }
 
     public function getAll(): array
@@ -42,11 +41,13 @@ class CategoryService
         return $this->entityManager->find(Category::class, $id);
     }
 
-    public function update(Category $category, string $name): void
+    public function update(Category $category, string $name): Category
     {
         $category->setName($name);
 
         $this->entityManager->persist($category);
         $this->entityManager->flush();
+
+        return $category;
     }
 }

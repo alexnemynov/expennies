@@ -12,6 +12,12 @@ const ajax = (url, method = 'get', data = {}, domElement = null) => {
     const csrfMethods = new Set(['post', 'put', 'delete', 'patch'])
 
     if (csrfMethods.has(method)) {
+        if (method !== 'post') {
+            options.method = 'post'
+
+            data = {...data, _METHOD: method.toUpperCase()}
+        }
+
         options.body = JSON.stringify({...data, ...getCsrfFields()})
     } else if (method === 'get') {
         url += '?' + (new URLSearchParams(data)).toString();
@@ -24,8 +30,7 @@ const ajax = (url, method = 'get', data = {}, domElement = null) => {
 
         if (! response.ok) {
             if (response.status === 422) {
-                response.json().then(errors =>
-                {
+                response.json().then(errors => {
                     handleValidationErrors(errors, domElement)
                 })
             }
@@ -37,6 +42,7 @@ const ajax = (url, method = 'get', data = {}, domElement = null) => {
 
 const get  = (url, data) => ajax(url, 'get', data)
 const post = (url, data, domElement) => ajax(url, 'post', data, domElement)
+const del = (url, data) => ajax(url, 'delete', data)
 
 function handleValidationErrors(errors, domElement) {
     for (const name in errors) {
@@ -56,10 +62,10 @@ function handleValidationErrors(errors, domElement) {
 }
 
 function clearValidationErrors(domElement) {
-    domElement.querySelectorAll('.is-invalid').forEach(function (element) {
+    domElement.querySelectorAll('.is-invalid').forEach(function(element) {
         element.classList.remove('is-invalid')
 
-        element.parentNode.querySelectorAll('.invalid-feedback').forEach(function (e) {
+        element.parentNode.querySelectorAll('.invalid-feedback').forEach(function(e) {
             e.remove()
         })
     })
@@ -82,5 +88,6 @@ function getCsrfFields() {
 export {
     ajax,
     get,
-    post
+    post,
+    del
 }
