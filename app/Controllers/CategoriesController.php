@@ -81,7 +81,15 @@ class CategoriesController
     {
         $params = $request->getQueryParams();
 
-        $categories = $this->categoryService->getPaginatedCategories((int) $params['start'], (int) $params['length']);
+        $orederBy = $params['columns'][$params['order'][0]['column']]['data'];
+        $orederDir = $params['order'][0]['dir'];
+
+        $categories = $this->categoryService->getPaginatedCategories(
+            (int) $params['start'],
+            (int) $params['length'],
+            $orederBy,
+            $orederDir
+        );
 
         $transformer = function (Category $category) {
             return [
