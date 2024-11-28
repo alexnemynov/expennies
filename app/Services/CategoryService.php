@@ -31,6 +31,11 @@ class CategoryService
             ->setFirstResult($start)
             ->setMaxResults($length);
 
+
+        // defense against SQL Injection
+        $orderBy = in_array($orderBy, ['name', 'createdAt', 'updatedAt']) ? $orderBy : 'updatedAt';
+        $orderDir = in_array(strtolower($orderDir), ['asc', 'desc']) ? strtolower($orderDir) : 'asc';
+
         $query->orderBy("c.".$orderBy, $orderDir);
 
         return new Paginator($query);
