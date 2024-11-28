@@ -24,7 +24,13 @@ class CategoryService
         return $this->update($category, $name);
     }
 
-    public function getPaginatedCategories(int $start, int $length, string $orderBy, string $orderDir): Paginator
+    public function getPaginatedCategories(
+        int $start,
+        int $length,
+        string $orderBy,
+        string $orderDir,
+        string $search,
+    ): Paginator
     {
         $query = $this->entityManager->getRepository(Category::class)
             ->createQueryBuilder("c")
@@ -35,6 +41,12 @@ class CategoryService
         // defense against SQL Injection
         $orderBy = in_array($orderBy, ['name', 'createdAt', 'updatedAt']) ? $orderBy : 'updatedAt';
         $orderDir = in_array(strtolower($orderDir), ['asc', 'desc']) ? strtolower($orderDir) : 'asc';
+
+        if (! empty($search)) {
+            $query
+                ->where("c.name LIKE :search")
+                ->setParameter('search', '%' . addcslashes($search, '%_') . '%');
+        }
 
         $query->orderBy("c.".$orderBy, $orderDir);
 
