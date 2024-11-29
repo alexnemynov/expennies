@@ -40,4 +40,28 @@ window.addEventListener('DOMContentLoaded', function () {
         ]
     });
 
+    document.querySelector('.create-transaction-btn').addEventListener('click', function (event) {
+        post(`/transactions`, getTransactionFormData(newTransactionModal), newTransactionModal._element)
+            .then(response => {
+                if (response.ok) {
+                    table.draw()
+
+                    newTransactionModal.hide()
+                }
+            })
+    })
+
+    function getTransactionFormData(modal) {
+        let data     = {}
+        const fields = [
+            ...modal._element.getElementsByTagName('input'),
+            ...modal._element.getElementsByTagName('select')
+        ]
+
+        fields.forEach(select => {
+            data[select.name] = select.value
+        })
+
+        return data
+    }
 })

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
+use App\DataObjects\TransactionData;
 use App\Entity\Category;
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\RequestValidators\CreateCategoryRequestValidator;
+use App\RequestValidators\TransactionRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CategoryService;
 use App\Services\RequestService;
@@ -37,6 +40,23 @@ class TransactionsController
         );
     }
 
+    public function store(Request $request, Response $response): Response
+    {
+        $data = $this->requestValidatorFactory->make(TransactionRequestValidator::class)->validate(
+            $request->getParsedBody()
+        );
 
+        $this->transactionService->create(
+            new TransactionData(
+                $data['description'],
+                (float) $data['amount'],
+                new \DateTime($data['date']),
+                $data['category']
+            ),
+            $request->getAttribute('user')
+        );
+
+        return $response;
+    }
 
 }
