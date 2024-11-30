@@ -6,11 +6,8 @@ namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\DataObjects\TransactionData;
-use App\Entity\Category;
-use App\Entity\Transaction;
-use App\Entity\User;
-use App\RequestValidators\CreateCategoryRequestValidator;
 use App\RequestValidators\TransactionRequestValidator;
+use App\RequestValidators\UpdateCategoryRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CategoryService;
 use App\Services\RequestService;
@@ -87,4 +84,28 @@ class TransactionsController
         return $response->withHeader('Location', '/transactions')->withStatus(302);
     }
 
+    public function update(Request $request, Response $response, array $args): Response
+    {
+        $data = $this->requestValidatorFactory->make(TransactionRequestValidator::class)->validate(
+            $args + $request->getParsedBody()
+        );
+
+        $transaction = $this->transactionService->getById((int) $data['id']);
+
+        if (! $transaction) {
+            return $response->withStatus(404);
+        }
+
+        $this->transactionService->update(
+            $transaction,
+            new TransactionData(
+                $data['description'],
+                (float) $data['amount'],
+                new \DateTime($data['date']),
+                $data['category']
+            )
+        );
+
+        return $response;
+    }
 }

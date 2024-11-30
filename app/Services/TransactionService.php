@@ -24,7 +24,7 @@ class TransactionService
         return $this->update($transaction, $data);
     }
 
-    private function update(Transaction $transaction, TransactionData $data): Transaction
+    public function update(Transaction $transaction, TransactionData $data): Transaction
     {
         $transaction->setDescription($data->description);
         $transaction->setAmount($data->amount);

@@ -41,6 +41,10 @@
                 <button type="submit" class="btn btn-outline-primary">
                     <i class="bi bi-trash3-fill"></i>
                 </button>
+                <button class="ms-2 btn btn-outline-primary edit-transaction-btn"
+                        data-id="{{ transaction.id }}">
+                    <i class="bi bi-pencil-fill"></i>
+                </button>
             </form>
         </div>
         {% endfor %}
