@@ -36,4 +36,9 @@ class TransactionService
 
         return $transaction;
     }
+
+    public function getById(int $id): ?Transaction
+    {
+        return $this->entityManager->find(Transaction::class, $id);
+    }
 }

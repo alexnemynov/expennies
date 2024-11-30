@@ -59,4 +59,23 @@ class TransactionsController
         return $response;
     }
 
+    public function get(Request $request, Response $response, array $args): Response
+    {
+        $transaction = $this->transactionService->getById((int) $args['id']);
+
+        if (! $transaction) {
+            return $response->withStatus(404);
+        }
+
+        $data = [
+            'id' => $transaction->getId(),
+            'description' => $transaction->getDescription(),
+            'date' => $transaction->getDate()->format('Y-m-d H:i:s'),
+            'amount' => $transaction->getAmount(),
+            'category' => $transaction->getCategory()->getId(),
+        ];
+
+        return $this->responseFormatter->asJson($response, $data);
+    }
+
 }
