@@ -33,10 +33,10 @@ class Transaction
     #[Column(name: 'amount', type: Types::DECIMAL, precision: 13, scale: 3)]
     private float $amount;
 
-    #[ManyToOne(targetEntity: User::class, inversedBy: 'transactions')]
+    #[ManyToOne(targetEntity: User::class, cascade: ['persist', 'remove'], inversedBy: 'transactions')]
     private User $user;
 
-    #[ManyToOne(targetEntity: Category::class, inversedBy: 'transactions')]
+    #[ManyToOne(targetEntity: Category::class, cascade: ['persist', 'remove'], inversedBy: 'transactions')]
     private Category $category;
 
     #[OneToMany(mappedBy: 'transactions', targetEntity: Receipt::class)]

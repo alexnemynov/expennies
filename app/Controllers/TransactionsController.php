@@ -36,7 +36,9 @@ class TransactionsController
         return $this->twig->render(
             $response,
             'transactions/index.twig',
-            ['categories' => $this->categoryService->getCategoryNames()]
+            ['categories' => $this->categoryService->getCategoryNames(),
+                'transactions' => $this->transactionService->getAll(),
+                ]
         );
     }
 
@@ -76,6 +78,13 @@ class TransactionsController
         ];
 
         return $this->responseFormatter->asJson($response, $data);
+    }
+
+    public function delete(Request $request, Response $response, array $args): Response
+    {
+        $this->transactionService->delete((int) $args['id']);
+
+        return $response->withHeader('Location', '/transactions')->withStatus(302);
     }
 
 }
