@@ -70,7 +70,7 @@ class TransactionsController
         $data = [
             'id' => $transaction->getId(),
             'description' => $transaction->getDescription(),
-            'date' => $transaction->getDate()->format('Y-m-d H:i:s'),
+            'date' => $transaction->getDate()->format('d.m.Y H:i:s'),
             'amount' => $transaction->getAmount(),
             'category' => $transaction->getCategory()->getId(),
         ];

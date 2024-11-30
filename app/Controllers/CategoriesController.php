@@ -88,8 +88,8 @@ class CategoriesController
             return [
                 'id'        => $category->getId(),
                 'name'      => $category->getName(),
-                'createdAt' => $category->getCreatedAt()->format('m/d/Y g:i A'),
-                'updatedAt' => $category->getCreatedAt()->format('m/d/Y g:i A'),
+                'createdAt' => $category->getCreatedAt()->format('d.m.Y H:i:s'),
+                'updatedAt' => $category->getCreatedAt()->format('d.m.Y H:i:s'),
             ];
         };
 
