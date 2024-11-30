@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\DataObjects\DataTableQueryParams;
 use App\DataObjects\TransactionData;
-use App\Entity\Category;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
@@ -53,10 +52,11 @@ class TransactionService
         $this->entityManager->flush();
     }
 
-    public function getPaginatedCategories(DataTableQueryParams $params): Paginator
+    public function getPaginatedTransactions(DataTableQueryParams $params): Paginator
     {
         $query = $this->entityManager->getRepository(Transaction::class)
-            ->createQueryBuilder("c")
+            ->createQueryBuilder('t')
+            ->leftJoin('t.category', 'c')
             ->setFirstResult($params->start)
             ->setMaxResults($params->length);
 
@@ -71,7 +71,11 @@ class TransactionService
                 ->setParameter('search', '%' . addcslashes($params->searchTerm, '%_') . '%');
         }
 
-        $query->orderBy("c.".$orderBy, $orderDir);
+        if ($orderBy === 'category') {
+            $query->orderBy('c.name', $orderDir);
+        } else {
+            $query->orderBy('t.' . $orderBy, $orderDir);
+        }
 
         return new Paginator($query);
     }

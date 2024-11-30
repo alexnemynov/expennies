@@ -114,13 +114,13 @@ class TransactionsController
     {
         $params = $this->requestService->getDataTableQueryParams($request);
 
-        $transactions = $this->transactionService->getPaginatedCategories($params);
+        $transactions = $this->transactionService->getPaginatedTransactions($params);
         $transformer = function (Transaction $transaction) {
             return [
                 'id' => $transaction->getId(),
                 'description' => $transaction->getDescription(),
                 'amount' => $transaction->getAmount(),
-                'category' => $transaction->getCategory()->getId(),
+                'category' => $transaction->getCategory()->getName(),
                 'date' => $transaction->getDate()->format('d.m.Y H:i:s'),
             ];
         };
@@ -129,7 +129,7 @@ class TransactionsController
 
         return $this->responseFormatter->asDataTable(
             $response,
-            array_map($transformer, (array)$transactions->getIterator()),
+            array_map($transformer, (array) $transactions->getIterator()),
             $params->draw,
             $totalTransactions
         );
