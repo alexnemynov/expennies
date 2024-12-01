@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-class StorageDriver
+enum StorageDriver: string
 {
-
+    case Local = 'local';
 }
