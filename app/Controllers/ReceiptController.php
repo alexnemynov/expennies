@@ -19,6 +19,9 @@ class ReceiptController
     {
         /** @var UploadedFileInterface $file */
         $file = $request->getUploadedFiles()['receipt'];
+        $fileName = $file->getClientFilename();
+
+        $this->filesystem->write('receipts/' . $fileName, $file->getStream()->getContents());
 
         return $response;
     }
