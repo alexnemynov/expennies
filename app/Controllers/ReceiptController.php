@@ -25,7 +25,7 @@ class ReceiptController
         /** @var UploadedFileInterface $file */
         $file = $this->requestValidatorFactory
             ->make(UploadReceiptRequestValidator::class)
-            ->validate($request->getUploadedFiles());
+            ->validate($request->getUploadedFiles())['receipt'];
         $fileName = $file->getClientFilename();
 
         $this->filesystem->write('receipts/' . $fileName, $file->getStream()->getContents());

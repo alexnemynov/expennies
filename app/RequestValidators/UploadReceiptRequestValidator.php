@@ -6,7 +6,7 @@ namespace App\RequestValidators;
 
 use App\Contracts\RequestValidatorInterface;
 use App\Exception\ValidationException;
-use finfo;
+use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadReceiptRequestValidator implements RequestValidatorInterface
@@ -42,35 +42,19 @@ class UploadReceiptRequestValidator implements RequestValidatorInterface
 
         // 4. Validate the file type
         $allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-        $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
-        $tmpFilePath = $uploadedFile->getStream()->getMetadata('uri');
+        $tmpFilePath      = $uploadedFile->getStream()->getMetadata('uri');
 
         if (! in_array($uploadedFile->getClientMediaType(), $allowedMimeTypes)) {
-            throw new ValidationException(['receipt' => ['Receipt type must be image or a pdf document']]);
+            throw new ValidationException(['receipt' => ['Receipt has to be either an image or a pdf document']]);
         }
 
-        if (! in_array($this->getExtension($tmpFilePath), $allowedExtensions)) {
-            throw new ValidationException(['receipt' => ['Receipt type must be either "pdf", "jpg", "jpeg", "png"']]);
-        }
+        $detector = new FinfoMimeTypeDetector();
+        $mimeType = $detector->detectMimeType($tmpFilePath, $uploadedFile->getStream()->getContents());
 
-        if (! in_array($this->getMimeType($tmpFilePath), $allowedMimeTypes)) {
+        if (! in_array($mimeType, $allowedMimeTypes)) {
             throw new ValidationException(['receipt' => ['Invalid file type']]);
         }
 
         return $data;
-    }
-
-    private function getExtension(string $path): string
-    {
-        $fileInfo = new finfo(FILEINFO_EXTENSION);
-
-        return $fileInfo->file($path) ?: '';
-    }
-
-    private function getMimeType(string $path): string
-    {
-        $fileInfo = new finfo(FILEINFO_MIME_TYPE);
-
-        return $fileInfo->file($path) ?: '';
     }
 }

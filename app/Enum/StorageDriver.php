@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Enum;
 
-enum StorageDriver: string
+enum StorageDriver
 {
-    case Local = 'local';
+    case Local;
 }
