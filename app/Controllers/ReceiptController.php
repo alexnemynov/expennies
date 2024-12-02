@@ -8,6 +8,7 @@ use App\Contracts\RequestValidatorFactoryInterface;
 use App\Entity\Receipt;
 use App\RequestValidators\UploadReceiptRequestValidator;
 use App\Services\ReceiptService;
+use App\Services\TransactionService;
 use League\Flysystem\Filesystem;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -19,6 +20,7 @@ class ReceiptController
         private readonly Filesystem $filesystem,
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly ReceiptService $receiptService,
+        private readonly TransactionService $transactionService,
     )
     {
     }
@@ -37,9 +39,11 @@ class ReceiptController
             return $response->withStatus(404);
         }
 
-        $this->filesystem->write('receipts/' . $filename, $file->getStream()->getContents());
+        $randomFilename = bin2hex(random_bytes(25));
 
-        $this->receiptService->create($transaction, $filename);
+        $this->filesystem->write('receipts/' . $randomFilename, $file->getStream()->getContents());
+
+        $this->receiptService->create($transaction, $filename, $randomFilename);
 
         return $response;
     }
