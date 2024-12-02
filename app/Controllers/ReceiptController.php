@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Entity\Receipt;
 use App\RequestValidators\UploadReceiptRequestValidator;
+use App\Services\ReceiptService;
 use League\Flysystem\Filesystem;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -16,7 +17,9 @@ class ReceiptController
 {
     public function __construct(
         private readonly Filesystem $filesystem,
-        private readonly RequestValidatorFactoryInterface $requestValidatorFactory,)
+        private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
+        private readonly ReceiptService $receiptService,
+    )
     {
     }
 
@@ -26,9 +29,17 @@ class ReceiptController
         $file = $this->requestValidatorFactory
             ->make(UploadReceiptRequestValidator::class)
             ->validate($request->getUploadedFiles())['receipt'];
-        $fileName = $file->getClientFilename();
+        $filename = $file->getClientFilename();
 
-        $this->filesystem->write('receipts/' . $fileName, $file->getStream()->getContents());
+        $id = (int) $args['id'];
+
+        if (! $id || ! ($transaction = $this->transactionService->getById($id))) {
+            return $response->withStatus(404);
+        }
+
+        $this->filesystem->write('receipts/' . $filename, $file->getStream()->getContents());
+
+        $this->receiptService->create($transaction, $filename);
 
         return $response;
     }
