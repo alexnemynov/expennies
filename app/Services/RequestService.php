@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Services;
 
@@ -33,7 +33,7 @@ class RequestService
 
     public function isXhr(ServerRequestInterface $request): bool
     {
-        return $request->hasHeader('X-Requested-With');
+        return $request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
     }
 
     public function getDataTableQueryParams(ServerRequestInterface $request): DataTableQueryParams
@@ -51,6 +51,5 @@ class RequestService
             $params['search']['value'],
             (int) $params['draw']
         );
-
     }
 }

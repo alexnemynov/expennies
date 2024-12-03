@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Services;
 
@@ -17,31 +17,41 @@ class TransactionService
     {
     }
 
-    public function create(TransactionData $data, User $user): Transaction
+    public function create(TransactionData $transactionData, User $user): Transaction
     {
         $transaction = new Transaction();
 
         $transaction->setUser($user);
 
-        return $this->update($transaction, $data);
+        return $this->update($transaction, $transactionData);
     }
 
-    public function update(Transaction $transaction, TransactionData $data): Transaction
+    public function getPaginatedTransactions(DataTableQueryParams $params): Paginator
     {
-        $transaction->setDescription($data->description);
-        $transaction->setAmount($data->amount);
-        $transaction->setDate($data->date);
-        $transaction->setCategory($data->category);
+        $query = $this->entityManager
+            ->getRepository(Transaction::class)
+            ->createQueryBuilder('t')
+            ->leftJoin('t.category', 'c')
+            ->setFirstResult($params->start)
+            ->setMaxResults($params->length);
 
-        $this->entityManager->persist($transaction);
-        $this->entityManager->flush();
+        $orderBy  = in_array($params->orderBy, ['description', 'amount', 'date', 'category'])
+            ? $params->orderBy
+            : 'date';
+        $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
 
-        return $transaction;
-    }
+        if (! empty($params->searchTerm)) {
+            $query->where('t.description LIKE :description')
+                ->setParameter('description', '%' . addcslashes($params->searchTerm, '%_') . '%');
+        }
 
-    public function getById(int $id): ?Transaction
-    {
-        return $this->entityManager->find(Transaction::class, $id);
+        if ($orderBy === 'category') {
+            $query->orderBy('c.name', $orderDir);
+        } else {
+            $query->orderBy('t.' . $orderBy, $orderDir);
+        }
+
+        return new Paginator($query);
     }
 
     public function delete(int $id): void
@@ -52,31 +62,21 @@ class TransactionService
         $this->entityManager->flush();
     }
 
-    public function getPaginatedTransactions(DataTableQueryParams $params): Paginator
+    public function getById(int $id): ?Transaction
     {
-        $query = $this->entityManager->getRepository(Transaction::class)
-            ->createQueryBuilder('t')
-            ->leftJoin('t.category', 'c')
-            ->setFirstResult($params->start)
-            ->setMaxResults($params->length);
+        return $this->entityManager->find(Transaction::class, $id);
+    }
 
+    public function update(Transaction $transaction, TransactionData $transactionData): Transaction
+    {
+        $transaction->setDescription($transactionData->description);
+        $transaction->setAmount($transactionData->amount);
+        $transaction->setDate($transactionData->date);
+        $transaction->setCategory($transactionData->category);
 
-        // defense against SQL Injection
-        $orderBy = in_array($params->orderBy, ['description', 'amount', 'category', 'date']) ? $params->orderBy : 'date';
-        $orderDir = in_array(strtolower($params->orderDir), ['asc', 'desc']) ? strtolower($params->orderDir) : 'asc';
+        $this->entityManager->persist($transaction);
+        $this->entityManager->flush();
 
-        if (! empty($params->searchTerm)) {
-            $query
-                ->where("c.name LIKE :search")
-                ->setParameter('search', '%' . addcslashes($params->searchTerm, '%_') . '%');
-        }
-
-        if ($orderBy === 'category') {
-            $query->orderBy('c.name', $orderDir);
-        } else {
-            $query->orderBy('t.' . $orderBy, $orderDir);
-        }
-
-        return new Paginator($query);
+        return $transaction;
     }
 }

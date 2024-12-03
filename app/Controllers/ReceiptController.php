@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
-use App\Entity\Receipt;
 use App\RequestValidators\UploadReceiptRequestValidator;
 use App\Services\ReceiptService;
 use App\Services\TransactionService;
@@ -20,17 +19,16 @@ class ReceiptController
         private readonly Filesystem $filesystem,
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly ReceiptService $receiptService,
-        private readonly TransactionService $transactionService,
-    )
-    {
+        private readonly TransactionService $transactionService
+    ) {
     }
 
     public function store(Request $request, Response $response, array $args): Response
     {
         /** @var UploadedFileInterface $file */
-        $file = $this->requestValidatorFactory
-            ->make(UploadReceiptRequestValidator::class)
-            ->validate($request->getUploadedFiles())['receipt'];
+        $file     = $this->requestValidatorFactory->make(UploadReceiptRequestValidator::class)->validate(
+            $request->getUploadedFiles()
+        )['receipt'];
         $filename = $file->getClientFilename();
 
         $id = (int) $args['id'];
@@ -44,6 +42,20 @@ class ReceiptController
         $this->filesystem->write('receipts/' . $randomFilename, $file->getStream()->getContents());
 
         $this->receiptService->create($transaction, $filename, $randomFilename);
+
+        return $response;
+    }
+
+    public function download(Request $request, Response $response, array $args): Response
+    {
+        // TODO
+
+        return $response;
+    }
+
+    public function delete(Request $request, Response $response, array $args): Response
+    {
+        // TODO
 
         return $response;
     }
