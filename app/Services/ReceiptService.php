@@ -13,7 +13,7 @@ class ReceiptService
     {
     }
 
-    public function create($transaction, string $filename, string $storageFilename): Receipt
+    public function create($transaction, string $filename, string $storageFilename, string $mediaType): Receipt
     {
         $receipt = new Receipt();
 
@@ -21,6 +21,7 @@ class ReceiptService
         $receipt->setFilename($filename);
         $receipt->setStorageFilename($storageFilename);
         $receipt->setCreatedAt(new \DateTime());
+        $receipt->setMediaType($mediaType);
 
         $this->entityManager->persist($receipt);
         $this->entityManager->flush();

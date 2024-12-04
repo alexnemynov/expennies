@@ -43,7 +43,7 @@ class ReceiptController
 
         $this->filesystem->write('receipts/' . $randomFilename, $file->getStream()->getContents());
 
-        $this->receiptService->create($transaction, $filename, $randomFilename);
+        $this->receiptService->create($transaction, $filename, $randomFilename, $file->getClientMediaType());
 
         return $response;
     }
@@ -66,6 +66,10 @@ class ReceiptController
         }
 
         $file = $this->filesystem->readStream('receipts/' . $receipt->getStorageFilename());
+
+        $response = $response
+            ->withHeader('Content-Disposition', 'inline; filename="' . $receipt->getFilename() . '"')
+            ->withHeader('Content-Type', $receipt->getMediaType());
 
         return $response->withBody(new Stream($file));
     }
