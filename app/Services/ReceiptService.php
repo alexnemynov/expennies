@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace App\Services;
 
 use App\Entity\Receipt;
+use App\Entity\Transaction;
 use Doctrine\ORM\EntityManager;
 
 class ReceiptService
@@ -32,5 +33,13 @@ class ReceiptService
     public function getById(int $id)
     {
         return $this->entityManager->find(Receipt::class, $id);
+    }
+
+    public function delete(int $id): void
+    {
+        $receipt = $this->entityManager->find(Receipt::class, $id);
+
+        $this->entityManager->remove($receipt);
+        $this->entityManager->flush();
     }
 }
