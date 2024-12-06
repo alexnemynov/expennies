@@ -7,6 +7,7 @@ use App\Controllers\CategoryController;
 use App\Controllers\HomeController;
 use App\Controllers\ReceiptController;
 use App\Controllers\TransactionController;
+use App\Controllers\TransactionImporterController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
 use Slim\App;
@@ -49,5 +50,6 @@ return function (App $app) {
             '/{transactionId:[0-9]+}/receipts/{id:[0-9]+}',
             [ReceiptController::class, 'delete']
         );
+        $transactions->post('/import', [TransactionImporterController::class, 'import']);
     })->add(AuthMiddleware::class);
 };

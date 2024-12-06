@@ -78,7 +78,7 @@ class TransactionController
             'description' => $transaction->getDescription(),
             'amount'      => $transaction->getAmount(),
             'date'        => $transaction->getDate()->format('d.m.Y H:i:s'),
-            'category'    => $transaction->getCategory()->getId(),
+            'category'    => $transaction->getCategory()?->getId(),
         ];
 
         return $this->responseFormatter->asJson($response, $data);
@@ -119,7 +119,7 @@ class TransactionController
                 'description' => $transaction->getDescription(),
                 'amount'      => $transaction->getAmount(),
                 'date'        => $transaction->getDate()->format('d.m.Y H:i:s'),
-                'category'    => $transaction->getCategory()->getName(),
+                'category'    => $transaction->getCategory()?->getName(),
                 'receipts'    => $transaction->getReceipts()->map(fn(Receipt $receipt) => [
                     'name' => $receipt->getFilename(),
                     'id'   => $receipt->getId(),
