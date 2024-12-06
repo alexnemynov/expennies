@@ -22,7 +22,6 @@ window.addEventListener('DOMContentLoaded', function () {
                     {
                         style: 'currency',
                         currency: 'USD',
-                        currencySign: 'accounting'
                     }
                 ).format(row.amount)
             },

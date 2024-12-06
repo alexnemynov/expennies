@@ -114,6 +114,8 @@ class Transaction implements OwnableInterface
 
     public function setCategory(?Category $category): Transaction
     {
+        $category?->addTransaction($this);
+
         $this->category = $category;
 
         return $this;
