@@ -102,6 +102,8 @@ class Transaction implements OwnableInterface
 
     public function setUser(User $user): Transaction
     {
+        $user->addTransaction($this);
+
         $this->user = $user;
 
         return $this;
@@ -114,7 +116,7 @@ class Transaction implements OwnableInterface
 
     public function setCategory(?Category $category): Transaction
     {
-        $category?->addTransaction($this);
+//        $category?->addTransaction($this);
 
         $this->category = $category;
 
