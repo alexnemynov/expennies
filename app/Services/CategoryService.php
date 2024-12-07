@@ -92,7 +92,7 @@ class CategoryService
         $categoriesMap = [];
 
         foreach ($categories as $category) {
-            $categoriesMap[$category->getName()] = $category;
+            $categoriesMap[strtolower($category->getName())] = $category;
         }
 
         return $categoriesMap;
