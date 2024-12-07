@@ -7,11 +7,11 @@ namespace App\Services;
 class TransactionImporterService
 {
 
-    public function parseTransaction(array $transactionRow, CategoryService $categoryService): array
+    public function parseTransaction(array $transactionRow, array $categories): array
     {
         [$date, $description, $category, $amount] = $transactionRow;
         $amount = (float) str_replace(['$', ','], '', $amount);
-        $category = $categoryService->getByName($category);
+        $category = $categories[$category] ?? null;
 
         return [
             'date' => new \DateTime($date),

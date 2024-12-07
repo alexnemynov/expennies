@@ -32,11 +32,12 @@ class TransactionImporterController
 
         $user = $request->getAttribute('user');
         $stream = fopen($file->getStream()->getMetadata('uri'), 'r');
+        $categories = $this->categoryService->getAllKeyedByName();
 
         fgetcsv($stream);
 
         while (($transaction = fgetcsv($stream)) !== false) {
-            $data = $this->transactionImporterService->parseTransaction($transaction, $this->categoryService);
+            $data = $this->transactionImporterService->parseTransaction($transaction, $categories);
             $transactionData = new TransactionData(
                 $data['description'],
                 $data['amount'],

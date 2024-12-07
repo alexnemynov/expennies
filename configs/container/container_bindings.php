@@ -16,6 +16,8 @@ use App\Enum\StorageDriver;
 use App\RequestValidators\RequestValidatorFactory;
 use App\Services\UserProviderService;
 use App\Session;
+use Clockwork\DataSource\DoctrineDataSource;
+use Clockwork\Storage\FileStorage;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use League\Flysystem\Filesystem;
@@ -33,6 +35,7 @@ use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Twig\Extra\Intl\IntlExtension;
+use Clockwork\Clockwork;
 
 use function DI\create;
 
@@ -110,4 +113,12 @@ return [
 
         return new Filesystem($adapter);
     },
+    Clockwork::class => function (EntityManager $entityManager) {
+        $clockwork = new Clockwork();
+
+        $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));
+        $clockwork->addDataSource(new DoctrineDataSource($entityManager));
+
+        return $clockwork;
+    }
 ];
