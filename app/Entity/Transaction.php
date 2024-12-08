@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace App\Entity;
 
-use App\Contracts\OwnableInterface;
 use App\Entity\Traits\HasTimestamps;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -20,15 +19,12 @@ use Doctrine\ORM\Mapping\Table;
 
 #[Entity, Table('transactions')]
 #[HasLifecycleCallbacks]
-class Transaction implements OwnableInterface
+class Transaction
 {
     use HasTimestamps;
 
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
-
-    #[Column(name: 'was_reviewed', options: ['default' => 0])]
-    private bool $wasReviewed;
 
     #[Column]
     private string $description;
@@ -50,8 +46,7 @@ class Transaction implements OwnableInterface
 
     public function __construct()
     {
-        $this->receipts    = new ArrayCollection();
-        $this->wasReviewed = false;
+        $this->receipts = new ArrayCollection();
     }
 
     public function getId(): int
@@ -102,8 +97,6 @@ class Transaction implements OwnableInterface
 
     public function setUser(User $user): Transaction
     {
-        $user->addTransaction($this);
-
         $this->user = $user;
 
         return $this;
@@ -116,8 +109,6 @@ class Transaction implements OwnableInterface
 
     public function setCategory(?Category $category): Transaction
     {
-//        $category?->addTransaction($this);
-
         $this->category = $category;
 
         return $this;
@@ -131,18 +122,6 @@ class Transaction implements OwnableInterface
     public function addReceipt(Receipt $receipt): Transaction
     {
         $this->receipts->add($receipt);
-
-        return $this;
-    }
-
-    public function wasReviewed(): bool
-    {
-        return $this->wasReviewed;
-    }
-
-    public function setReviewed(bool $wasReviewed): Transaction
-    {
-        $this->wasReviewed = $wasReviewed;
 
         return $this;
     }

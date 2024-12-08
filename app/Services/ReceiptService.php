@@ -8,12 +8,8 @@ use App\Entity\Receipt;
 use App\Entity\Transaction;
 use Doctrine\ORM\EntityManager;
 
-class ReceiptService
+class ReceiptService extends EntityManagerService
 {
-    public function __construct(private readonly EntityManager $entityManager)
-    {
-    }
-
     public function create($transaction, string $filename, string $storageFilename, string $mediaType): Receipt
     {
         $receipt = new Receipt();
@@ -25,7 +21,6 @@ class ReceiptService
         $receipt->setMediaType($mediaType);
 
         $this->entityManager->persist($receipt);
-        $this->entityManager->flush();
 
         return $receipt;
     }
@@ -35,11 +30,8 @@ class ReceiptService
         return $this->entityManager->find(Receipt::class, $id);
     }
 
-    public function delete(int $id): void
+    public function delete(Receipt $receipt): void
     {
-        $receipt = $this->entityManager->find(Receipt::class, $id);
-
         $this->entityManager->remove($receipt);
-        $this->entityManager->flush();
     }
 }

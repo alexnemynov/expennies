@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -16,7 +16,8 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 
-#[Entity, Table(name: 'users'), HasLifecycleCallbacks]
+#[Entity, Table('users')]
+#[HasLifecycleCallbacks]
 class User implements UserInterface
 {
     use HasTimestamps;
@@ -33,15 +34,15 @@ class User implements UserInterface
     #[Column]
     private string $password;
 
-    #[OneToMany(mappedBy: 'users', targetEntity: Category::class)]
+    #[OneToMany(mappedBy: 'user', targetEntity: Category::class)]
     private Collection $categories;
 
-    #[OneToMany(mappedBy: 'users', targetEntity: Transaction::class)]
+    #[OneToMany(mappedBy: 'user', targetEntity: Transaction::class)]
     private Collection $transactions;
 
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
+        $this->categories   = new ArrayCollection();
         $this->transactions = new ArrayCollection();
     }
 
@@ -86,31 +87,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): User
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): \DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): User
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    public function getCategories(): Collection
+    public function getCategories(): ArrayCollection|Collection
     {
         return $this->categories;
     }
@@ -122,14 +99,14 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getTransactions(): Collection
+    public function getTransactions(): ArrayCollection|Collection
     {
         return $this->transactions;
     }
 
     public function addTransaction(Transaction $transaction): User
     {
-//        $this->transactions->add($transaction);
+        $this->transactions->add($transaction);
 
         return $this;
     }
