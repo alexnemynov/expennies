@@ -51,5 +51,6 @@ return function (App $app) {
             [ReceiptController::class, 'delete']
         );
         $transactions->post('/import', [TransactionImporterController::class, 'import']);
+        $transactions->post('/{id:[0-9]+}/review', [TransactionController::class, 'toggleReviewed']);
     })->add(AuthMiddleware::class);
 };
