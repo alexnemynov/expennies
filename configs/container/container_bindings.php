@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Auth;
 use App\Config;
 use App\Contracts\AuthInterface;
+use App\Contracts\EntityManagerServiceInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\SessionInterface;
 use App\Contracts\UserProviderServiceInterface;
@@ -14,6 +15,7 @@ use App\Enum\AppEnvironment;
 use App\Enum\SameSite;
 use App\Enum\StorageDriver;
 use App\RequestValidators\RequestValidatorFactory;
+use App\Services\EntityManagerService;
 use App\Services\UserProviderService;
 use App\Session;
 use Clockwork\DataSource\DoctrineDataSource;
@@ -119,12 +121,15 @@ return [
 
         return new Filesystem($adapter);
     },
-    Clockwork::class => function (EntityManagerInterface $entityManager) {
+    Clockwork::class                        => function (EntityManagerInterface $entityManager) {
         $clockwork = new Clockwork();
 
         $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));
         $clockwork->addDataSource(new DoctrineDataSource($entityManager));
 
         return $clockwork;
-    }
+    },
+    EntityManagerServiceInterface::class    => fn(EntityManagerInterface $entityManager) => new EntityManagerService(
+        $entityManager
+    ),
 ];

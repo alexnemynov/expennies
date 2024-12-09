@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\EntityManagerServiceInterface;
 use App\DataObjects\TransactionData;
 use App\Entity\Transaction;
 use App\Entity\User;
@@ -13,7 +14,7 @@ class TransactionImporterService
     public function __construct(
         private readonly CategoryService $categoryService,
         private readonly TransactionService $transactionService,
-        private readonly EntityManagerService $entityManagerService,
+        private readonly EntityManagerServiceInterface $entityManager,
     )
     {
     }
@@ -36,11 +37,13 @@ class TransactionImporterService
                 $data['category']
             );
 
-            $this->transactionService->create($transactionData, $user);
+            $this->entityManager->persist(
+                $this->transactionService->create($transactionData, $user)
+            );
 
             if ($count % $batchSize === 0) {
-                $this->entityManagerService->flush();
-                $this->entityManagerService->clear(Transaction::class);
+                $this->entityManager->sync();
+                $this->entityManager->clear(Transaction::class);
 
                 $count = 1;
             } else {
@@ -49,8 +52,8 @@ class TransactionImporterService
         }
 
         if ($count > 1) {
-            $this->entityManagerService->flush();
-            $this->entityManagerService->clear();
+            $this->entityManager->sync();
+            $this->entityManager->clear();
         }
     }
 
