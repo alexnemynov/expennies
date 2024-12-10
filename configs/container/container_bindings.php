@@ -53,7 +53,12 @@ return [
 
         $app = AppFactory::create();
 
-        $app->getRouteCollector()->setDefaultInvocationStrategy(new RouteEntityBindingStrategy());
+        $app->getRouteCollector()->setDefaultInvocationStrategy(
+            new RouteEntityBindingStrategy(
+                $container->get(EntityManagerServiceInterface::class),
+                $app->getResponseFactory(),
+            )
+        );
 
         $router($app);
 
