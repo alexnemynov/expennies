@@ -75,11 +75,6 @@ class CategoryController
 
     public function load(Request $request, Response $response): Response
     {
-        $this->entityManagerService->getFilters()->enable('user')->setParameter(
-            'user_id',
-            $request->getAttribute('user')->getId()
-        );
-
         $params = $this->requestService->getDataTableQueryParams($request);
 
         $categories = $this->categoryService->getPaginatedCategories($params);
