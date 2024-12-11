@@ -77,7 +77,7 @@ class CategoryController
     {
         $params = $this->requestService->getDataTableQueryParams($request);
 
-        $categories = $this->categoryService->getPaginatedCategories($params);
+        $categories = $this->categoryService->getPaginatedCategories($params, $request->getAttribute('user')->getId());
         $transformer = function (Category $category) {
             return [
                 'id'        => $category->getId(),
