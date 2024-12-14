@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Contracts\UserProviderServiceInterface;
 use App\Entity\User;
+use App\Mail\SignupEmail;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
@@ -15,6 +16,7 @@ class VerifyController
     public function __construct(
         private readonly Twig $twig,
         private readonly UserProviderServiceInterface $userProviderService,
+        private readonly SignupEmail $signupEmail,
     ) {
     }
 
@@ -38,6 +40,14 @@ class VerifyController
 
         return $response->withHeader('Location', '/')->withStatus(302);
     }
+
+    public function resend(Request $request, Response $response): Response
+    {
+        $this->signupEmail->send($request->getAttribute('user'));
+
+        return $response;
+    }
+
 
 
 }
