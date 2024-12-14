@@ -124,4 +124,11 @@ class User implements UserInterface
     {
         return $this->verifiedAt;
     }
+
+    public function setVerifiedAt(\DateTime $verifiedAt): User
+    {
+        $this->verifiedAt = $verifiedAt;
+
+        return $this;
+    }
 }

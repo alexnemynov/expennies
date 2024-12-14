@@ -78,7 +78,7 @@ class Auth implements AuthInterface
         $this->logIn($user);
 
         // send email
-        $this->signupEmail->send($user->getEmail());
+        $this->signupEmail->send($user);
 
         return $user;
     }
