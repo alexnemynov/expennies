@@ -9,6 +9,7 @@ use App\Contracts\SessionInterface;
 use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
+use App\Enum\AuthAttemptStatus;
 use App\Mail\SignupEmail;
 
 class Auth implements AuthInterface
@@ -18,7 +19,7 @@ class Auth implements AuthInterface
     public function __construct(
         private readonly UserProviderServiceInterface $userProvider,
         private readonly SessionInterface $session,
-        private readonly SignupEmail $signupEmail,
+        private readonly SignupEmail $signupEmail
     ) {
     }
 
@@ -45,17 +46,23 @@ class Auth implements AuthInterface
         return $this->user;
     }
 
-    public function attemptLogin(array $credentials): bool
+    public function attemptLogin(array $credentials): AuthAttemptStatus
     {
         $user = $this->userProvider->getByCredentials($credentials);
 
         if (! $user || ! $this->checkCredentials($user, $credentials)) {
-            return false;
+            return AuthAttemptStatus::FAILED;
+        }
+
+        if ($user->hasTwoFactorAuthEnabled()) {
+            // TODO
+
+            return AuthAttemptStatus::TWO_FACTOR_AUTH;
         }
 
         $this->logIn($user);
 
-        return true;
+        return AuthAttemptStatus::SUCCESS;
     }
 
     public function checkCredentials(UserInterface $user, array $credentials): bool
@@ -77,7 +84,6 @@ class Auth implements AuthInterface
 
         $this->logIn($user);
 
-        // send email
         $this->signupEmail->send($user);
 
         return $user;

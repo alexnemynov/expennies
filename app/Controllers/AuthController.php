@@ -7,9 +7,11 @@ namespace App\Controllers;
 use App\Contracts\AuthInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\DataObjects\RegisterUserData;
+use App\Enum\AuthAttemptStatus;
 use App\Exception\ValidationException;
 use App\RequestValidators\RegisterUserRequestValidator;
 use App\RequestValidators\UserLoginRequestValidator;
+use App\ResponseFormatter;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -20,6 +22,7 @@ class AuthController
         private readonly Twig $twig,
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly AuthInterface $auth,
+        private readonly ResponseFormatter $responseFormatter
     ) {
     }
 
@@ -46,15 +49,21 @@ class AuthController
 
     public function logIn(Request $request, Response $response): Response
     {
-        $data = $this->requestValidatorFactory
-            ->make(UserLoginRequestValidator::class)
-            ->validate($request->getParsedBody());
+        $data = $this->requestValidatorFactory->make(UserLoginRequestValidator::class)->validate(
+            $request->getParsedBody()
+        );
 
-        if (! $this->auth->attemptLogin($data)) {
-            throw new ValidationException(['password' => ['You have entered wrong email or password.']]);
-        };
+        $status = $this->auth->attemptLogin($data);
 
-        return $response->withHeader('Location', '/')->withStatus(302);
+        if ($status === AuthAttemptStatus::FAILED) {
+            throw new ValidationException(['password' => ['You have entered an invalid username or password']]);
+        }
+
+        if ($status === AuthAttemptStatus::TWO_FACTOR_AUTH) {
+            return $this->responseFormatter->asJson($response, ['two_factor' => true]);
+        }
+
+        return $this->responseFormatter->asJson($response, []);
     }
 
     public function logOut(Request $request, Response $response): Response
