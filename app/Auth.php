@@ -104,9 +104,38 @@ class Auth implements AuthInterface
     private function startLoginWith2FA(UserInterface $user): void
     {
         $this->session->regenerate();
-        $this->session->get('2FA', $user->getId());
+        $this->session->put('2fa', $user->getId());
+
+        $this->userLoginCodeService->deactivateAllActiveCodes($user);
 
         // send email
         $this->twoFactorAuthEmail->send($this->userLoginCodeService->generate($user));
+    }
+
+    public function attemptTwoFactorLogin(array $data): bool
+    {
+        $userId = $this->session->get('2fa');
+
+        if (! $userId) {
+            return false;
+        }
+
+        $user = $this->userProvider->getById($userId);
+
+        if (! $user || $user->getEmail() !== $data['email']) {
+            return false;
+        }
+
+        if (! $this->userLoginCodeService->verify($user, $data['code'])) {
+            return false;
+        }
+
+        $this->userLoginCodeService->deactivateAllActiveCodes($user);
+
+        $this->session->forget('2fa');
+
+        $this->logIn($user);
+
+        return true;
     }
 }

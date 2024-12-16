@@ -10,6 +10,7 @@ use App\DataObjects\RegisterUserData;
 use App\Enum\AuthAttemptStatus;
 use App\Exception\ValidationException;
 use App\RequestValidators\RegisterUserRequestValidator;
+use App\RequestValidators\TwoFactorLoginRequestValidator;
 use App\RequestValidators\UserLoginRequestValidator;
 use App\ResponseFormatter;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -26,12 +27,12 @@ class AuthController
     ) {
     }
 
-    public function loginView(Request $request, Response $response): Response
+    public function loginView(Response $response): Response
     {
         return $this->twig->render($response, 'auth/login.twig');
     }
 
-    public function registerView(Request $request, Response $response): Response
+    public function registerView(Response $response): Response
     {
         return $this->twig->render($response, 'auth/register.twig');
     }
@@ -66,10 +67,23 @@ class AuthController
         return $this->responseFormatter->asJson($response, []);
     }
 
-    public function logOut(Request $request, Response $response): Response
+    public function logOut(Response $response): Response
     {
         $this->auth->logOut();
 
         return $response->withHeader('Location', '/')->withStatus(302);
+    }
+
+    public function twoFactorLogin(Request $request, Response $response): Response
+    {
+        $data = $this->requestValidatorFactory
+            ->make(TwoFactorLoginRequestValidator::class)
+            ->validate($request->getParsedBody());
+
+        if (! $this->auth->attemptTwoFactorLogin($data)) {
+            throw new ValidationException(['code' => ['Invalid two factor authentication code']]);
+        }
+
+        return $response;
     }
 }
