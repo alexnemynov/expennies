@@ -38,6 +38,9 @@ class User implements UserInterface
     #[Column(name: 'verified_at', nullable: true)]
     private ?\DateTime $verifiedAt;
 
+    #[Column(name: 'two_factor', options: ['default' => false])]
+    private bool $twoFactor;
+
     #[OneToMany(mappedBy: 'user', targetEntity: Category::class)]
     private Collection $categories;
 
@@ -125,7 +128,7 @@ class User implements UserInterface
         return $this->verifiedAt;
     }
 
-    public function setVerifiedAt(\DateTime $verifiedAt): User
+    public function setVerifiedAt(\DateTime $verifiedAt): static
     {
         $this->verifiedAt = $verifiedAt;
 
@@ -134,8 +137,13 @@ class User implements UserInterface
 
     public function hasTwoFactorAuthEnabled(): bool
     {
-        // TODO: Implement hasTwoFactorAuthEnabled() method.
+        return $this->twoFactor;
+    }
 
-        return true;
+    public function setTwoFactor(bool $twoFactor): User
+    {
+        $this->twoFactor = $twoFactor;
+
+        return $this;
     }
 }
