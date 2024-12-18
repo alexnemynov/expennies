@@ -8,6 +8,7 @@ use App\Contracts\AuthInterface;
 use App\Contracts\EntityManagerServiceInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\SessionInterface;
+use App\Contracts\UserProfileServiceInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\Csrf;
 use App\DataObjects\SessionConfig;
@@ -18,6 +19,7 @@ use App\Filters\UserFilter;
 use App\RequestValidators\RequestValidatorFactory;
 use App\RouteEntityBindingStrategy;
 use App\Services\EntityManagerService;
+use App\Services\UserProfileService;
 use App\Services\UserProviderService;
 use App\Session;
 use Clockwork\DataSource\DoctrineDataSource;
@@ -159,4 +161,7 @@ return [
         $twig->getEnvironment()
     ),
     RouteParserInterface::class => fn(App $app) => $app->getRouteCollector()->getRouteParser(),
+    UserProfileServiceInterface::class => fn(
+        ContainerInterface $container
+    ) => $container->get(UserProfileService::class),
 ];
