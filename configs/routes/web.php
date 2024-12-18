@@ -5,6 +5,7 @@ declare(strict_types = 1);
 use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
 use App\Controllers\HomeController;
+use App\Controllers\PasswordResetController;
 use App\Controllers\ProfileController;
 use App\Controllers\ReceiptController;
 use App\Controllers\TransactionController;
@@ -72,5 +73,7 @@ return function (App $app) {
         $guest->post('/login', [AuthController::class, 'logIn']);
         $guest->post('/register', [AuthController::class, 'register']);
         $guest->post('/login/two-factor', [AuthController::class, 'twoFactorLogin']);
+        $guest->get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm']);
+        $guest->post('/forgot-password', [PasswordResetController::class, 'handleForgotPasswordRequest']);
     })->add(GuestMiddleware::class);
 };
