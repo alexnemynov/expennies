@@ -5,16 +5,11 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\Config;
-use App\Contracts\AuthInterface;
-use App\Contracts\EntityManagerServiceInterface;
 use Laravel\SerializableClosure\Exceptions\InvalidSignatureException;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Views\Twig;
-use function DI\string;
 
 class ValidateSignatureMiddleware implements MiddlewareInterface
 {

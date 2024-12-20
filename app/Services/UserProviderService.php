@@ -12,8 +12,10 @@ use App\Entity\User;
 
 class UserProviderService implements UserProviderServiceInterface
 {
-    public function __construct(private readonly EntityManagerServiceInterface $entityManagerService)
-    {
+    public function __construct(
+        private readonly EntityManagerServiceInterface $entityManagerService,
+        private readonly HashService $hashService,
+    ) {
     }
 
     public function getById(int $id): ?UserInterface
@@ -31,7 +33,7 @@ class UserProviderService implements UserProviderServiceInterface
         $user = new User();
 
         $user->setEmail($data->email);
-        $user->setPassword(password_hash($data->password, PASSWORD_BCRYPT, ['cost' => 12]));
+        $user->setPassword($this->hashService->hashPassword($data->password));
         $user->setName($data->name);
 
         $this->entityManagerService->sync($user);
