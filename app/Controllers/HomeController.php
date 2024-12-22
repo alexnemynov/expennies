@@ -16,8 +16,8 @@ class HomeController
 
     public function index(Response $response): Response
     {
-//        $this->cache->set('a', 1, 5);
-//        $this->cache->setMultiple(['b' => 2, 'c' => 3], 15);
+        $this->cache->set('a', 1, 5);
+        $this->cache->setMultiple(['b' => 2, 'c' => 3], 15);
 
         var_dump($this->cache->get('a'));
         var_dump($this->cache->getMultiple(['b', 'c']));

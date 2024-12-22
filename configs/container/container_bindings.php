@@ -16,7 +16,6 @@ use App\Enum\AppEnvironment;
 use App\Enum\SameSite;
 use App\Enum\StorageDriver;
 use App\Filters\UserFilter;
-use App\RedisCache;
 use App\RequestValidators\RequestValidatorFactory;
 use App\RouteEntityBindingStrategy;
 use App\Services\EntityManagerService;
@@ -37,13 +36,14 @@ use Slim\App;
 use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteParserInterface;
-use Slim\Routing\RouteParser;
 use Slim\Views\Twig;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Bridge\Twig\Mime\BodyRenderer;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Transport;
@@ -173,6 +173,8 @@ return [
         $redis->connect($config['host'], (int) $config['port']);
         $redis->auth($config['password']);
 
-        return new RedisCache($redis);
+        $adapter = new RedisAdapter($redis);
+
+        return new Psr16Cache($adapter);
     }
 ];
