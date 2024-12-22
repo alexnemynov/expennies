@@ -16,6 +16,7 @@ use App\Enum\AppEnvironment;
 use App\Enum\SameSite;
 use App\Enum\StorageDriver;
 use App\Filters\UserFilter;
+use App\RedisCache;
 use App\RequestValidators\RequestValidatorFactory;
 use App\RouteEntityBindingStrategy;
 use App\Services\EntityManagerService;
@@ -31,6 +32,7 @@ use Doctrine\ORM\ORMSetup;
 use League\Flysystem\Filesystem;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\SimpleCache\CacheInterface;
 use Slim\App;
 use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
@@ -164,4 +166,13 @@ return [
     UserProfileServiceInterface::class => fn(
         ContainerInterface $container
     ) => $container->get(UserProfileService::class),
+    CacheInterface::class => function (Config $config) {
+        $redis = new Redis();
+        $config = $config->get('redis');
+
+        $redis->connect($config['host'], (int) $config['port']);
+        $redis->auth($config['password']);
+
+        return new RedisCache($redis);
+    }
 ];
