@@ -13,6 +13,7 @@ use App\Controllers\TransactionImporterController;
 use App\Controllers\VerifyController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
+use App\Middleware\RateLimitMiddleware;
 use App\Middleware\ValidateSignatureMiddleware;
 use App\Middleware\VerifyEmailMiddleware;
 use Slim\App;
@@ -56,7 +57,6 @@ return function (App $app) {
             $profile->post('', [ProfileController::class, 'update']);
             $profile->post('/update-password', [ProfileController::class, 'updatePassword']);
         });
-
     })->add(VerifyEmailMiddleware::class)->add(AuthMiddleware::class);
 
     $app->group('', function(RouteCollectorProxy $group) {
@@ -71,7 +71,7 @@ return function (App $app) {
     $app->group('', function (RouteCollectorProxy $guest) {
         $guest->get('/login', [AuthController::class, 'loginView']);
         $guest->get('/register', [AuthController::class, 'registerView']);
-        $guest->post('/login', [AuthController::class, 'logIn']);
+        $guest->post('/login', [AuthController::class, 'logIn'])->add(RateLimitMiddleware::class);
         $guest->post('/register', [AuthController::class, 'register']);
         $guest->post('/login/two-factor', [AuthController::class, 'twoFactorLogin']);
         $guest->get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm']);
