@@ -178,11 +178,9 @@ return [
 
         return new RedisAdapter($redis);
     },
-    RateLimiterFactory::class => function (RedisAdapter $redisAdapter) {
+    RateLimiterFactory::class => function (RedisAdapter $redisAdapter, Config $config) {
         $storage = new CacheStorage($redisAdapter);
 
-        return new RateLimiterFactory([
-            'id' => 'default', 'policy' => 'fixed_window', 'interval' => '1 minute', 'limit' => 3
-        ], $storage);
+        return new RateLimiterFactory($config->get('limiter'), $storage);
     }
 ];

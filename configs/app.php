@@ -49,5 +49,11 @@ return [
         'port'     => $_ENV['REDIS_PORT'],
         'password' => $_ENV['REDIS_PASSWORD'],
     ],
-    'trusted_proxies' => []
+    'trusted_proxies' => [],
+    'limiter'               => [
+        'id'       => 'default',
+        'policy'   => 'fixed_window',
+        'interval' => '1 minute',
+        'limit'    => 25,
+    ],
 ];
