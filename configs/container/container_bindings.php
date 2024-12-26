@@ -48,6 +48,8 @@ use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\BodyRendererInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
@@ -166,15 +168,21 @@ return [
     UserProfileServiceInterface::class => fn(
         ContainerInterface $container
     ) => $container->get(UserProfileService::class),
-    CacheInterface::class => function (Config $config) {
+    CacheInterface::class => fn (RedisAdapter $redisAdapter) => new Psr16Cache($redisAdapter),
+    RedisAdapter::class => function (Config $config) {
         $redis = new Redis();
         $config = $config->get('redis');
 
         $redis->connect($config['host'], (int) $config['port']);
         $redis->auth($config['password']);
 
-        $adapter = new RedisAdapter($redis);
+        return new RedisAdapter($redis);
+    },
+    RateLimiterFactory::class => function (RedisAdapter $redisAdapter) {
+        $storage = new CacheStorage($redisAdapter);
 
-        return new Psr16Cache($adapter);
+        return new RateLimiterFactory([
+            'id' => 'default', 'policy' => 'fixed_window', 'interval' => '1 minute', 'limit' => 3
+        ], $storage);
     }
 ];
