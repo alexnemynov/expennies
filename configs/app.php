@@ -38,7 +38,15 @@ return [
         'samesite' => 'lax',
     ],
     'storage' => [
-        'driver'   => StorageDriver::Local,
+        'driver'   => StorageDriver::Local, // Change to Remote_DO to use S3
+        's3' => [
+            'key'      => $_ENV['S3_KEY'],
+            'secret'   => $_ENV['S3_SECRET'],
+            'region'   => $_ENV['S3_REGION'],
+            'version'  => $_ENV['S3_VERSION'],
+            'endpoint' => $_ENV['S3_ENDPOINT'],
+            'bucket'   => $_ENV['S3_BUCKET']
+        ]
     ],
     'mailer' => [
         'dsn'     => $_ENV['MAILER_DSN'],

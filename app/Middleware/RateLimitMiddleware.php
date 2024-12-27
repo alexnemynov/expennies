@@ -11,14 +11,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\SimpleCache\CacheInterface;
 use Slim\Routing\RouteContext;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 class RateLimitMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        private readonly CacheInterface $cache,
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly RequestService $requestService,
         private readonly Config $config,
