@@ -113,7 +113,7 @@ class TransactionService
 
     public function getRecentTransactions(int $limit): array
     {
-        $recentTransactions = $this->entityManager
+        return $this->entityManager
             ->getRepository(Transaction::class)
             ->createQueryBuilder('t')
             ->select('t', 'c')
@@ -123,20 +123,48 @@ class TransactionService
             ->setMaxResults($limit)
             ->getQuery()
             ->getArrayResult();
-//        var_dump($recentTransactions);
-        return $recentTransactions;
     }
 
     public function getMonthlySummary(int $year): array
     {
-        // TODO: Implement
+        $monthlySummary = [];
 
-        return [
-            ['income' => 1500, 'expense' => 1100, 'm' => '3'],
-            ['income' => 2000, 'expense' => 1800, 'm' => '4'],
-            ['income' => 2500, 'expense' => 1900, 'm' => '5'],
-            ['income' => 2600, 'expense' => 1950, 'm' => '6'],
-            ['income' => 3000, 'expense' => 2200, 'm' => '7'],
-        ];
+        for ($month = 1; $month <= 12; $month++) {
+
+            $income = $this->entityManager
+                ->getRepository(Transaction::class)
+                ->createQueryBuilder('t')
+                ->select('SUM(t.amount)')
+                ->where('YEAR(t.date) = :year')
+                ->andWhere('MONTH(t.date) = :month')
+                ->andWhere('t.amount > 0')
+                ->setParameters(
+                    [
+                        'year'  => $year,
+                        'month'    => $month,
+                    ]
+                )
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            $expense = $this->entityManager
+                ->getRepository(Transaction::class)
+                ->createQueryBuilder('t')
+                ->select('SUM(ABS(t.amount))')
+                ->where('YEAR(t.date) = :year')
+                ->andWhere('MONTH(t.date) = :month')
+                ->andWhere('t.amount < 0')
+                ->setParameters(
+                    [
+                        'year'  => $year,
+                        'month'    => $month,
+                    ]
+                )
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            $monthlySummary[] = ['income' => (float) $income, 'expense' => (float) $expense, 'm' => $month];
+        }
+        return $monthlySummary;
     }
 }

@@ -54,7 +54,7 @@
                             </td>
                             <td>
                                 <div>{{ transaction.category ? transaction.category : 'N/A' }}</div>
-                                <div>{{ transaction.date | date('m/d/Y') }}</div>
+                                <div>{{ transaction.date | date('d/m/Y') }}</div>
                             </td>
                         </tr>
                     {% endfor %}
