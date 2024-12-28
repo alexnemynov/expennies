@@ -10,8 +10,6 @@ use Doctrine\ORM\Query\Filter\SQLFilter;
 
 class UserFilter extends SQLFilter
 {
-
-
     public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
     {
         // Check if the entity implements the LocalAware interface
