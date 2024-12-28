@@ -78,9 +78,37 @@ class TransactionService
 
     public function getTotals(\DateTime $startDate, \DateTime $endDate): array
     {
-        // TODO: Implement
+        $income = $this->entityManager
+            ->getRepository(Transaction::class)
+            ->createQueryBuilder('t')
+            ->select('SUM(t.amount)')
+            ->where('t.date BETWEEN :startDate AND :endDate')
+            ->andWhere('t.amount > 0')
+            ->setParameters(
+                [
+                    'startDate'  => $startDate,
+                    'endDate'    => $endDate,
+                ]
+            )
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        return ['net' => 800, 'income' => 3000, 'expense' => 2200];
+        $expense = $this->entityManager
+            ->getRepository(Transaction::class)
+            ->createQueryBuilder('t')
+            ->select('SUM(ABS(t.amount))')
+            ->where('t.date BETWEEN :startDate AND :endDate')
+            ->andWhere('t.amount < 0')
+            ->setParameters(
+                [
+                    'startDate'  => $startDate,
+                    'endDate'    => $endDate,
+                ]
+            )
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return ['net' => ($income - $expense), 'income' => $income, 'expense' => $expense];
     }
 
     public function getRecentTransactions(int $limit): array
