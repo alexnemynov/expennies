@@ -127,44 +127,18 @@ class TransactionService
 
     public function getMonthlySummary(int $year): array
     {
-        $monthlySummary = [];
+        $query = $this->entityManager->createQuery(
+            'SELECT SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) as income,
+                    SUM(CASE WHEN t.amount < 0 THEN abs(t.amount) ELSE 0 END) as expense, 
+                    MONTH(t.date) as m
+             FROM App\Entity\Transaction t 
+             WHERE YEAR(t.date) = :year 
+             GROUP BY m 
+             ORDER BY m ASC'
+        );
 
-        for ($month = 1; $month <= 12; $month++) {
+        $query->setParameter('year', $year);
 
-            $income = $this->entityManager
-                ->getRepository(Transaction::class)
-                ->createQueryBuilder('t')
-                ->select('SUM(t.amount)')
-                ->where('YEAR(t.date) = :year')
-                ->andWhere('MONTH(t.date) = :month')
-                ->andWhere('t.amount > 0')
-                ->setParameters(
-                    [
-                        'year'  => $year,
-                        'month'    => $month,
-                    ]
-                )
-                ->getQuery()
-                ->getSingleScalarResult();
-
-            $expense = $this->entityManager
-                ->getRepository(Transaction::class)
-                ->createQueryBuilder('t')
-                ->select('SUM(ABS(t.amount))')
-                ->where('YEAR(t.date) = :year')
-                ->andWhere('MONTH(t.date) = :month')
-                ->andWhere('t.amount < 0')
-                ->setParameters(
-                    [
-                        'year'  => $year,
-                        'month'    => $month,
-                    ]
-                )
-                ->getQuery()
-                ->getSingleScalarResult();
-
-            $monthlySummary[] = ['income' => (float) $income, 'expense' => (float) $expense, 'm' => $month];
-        }
-        return $monthlySummary;
+        return $query->getArrayResult();
     }
 }
