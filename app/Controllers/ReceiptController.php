@@ -10,11 +10,11 @@ use App\Entity\Receipt;
 use App\Entity\Transaction;
 use App\RequestValidators\UploadReceiptRequestValidator;
 use App\Services\ReceiptService;
-use App\Services\TransactionService;
 use League\Flysystem\Filesystem;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\UploadedFileInterface;
+use Psr\SimpleCache\CacheInterface;
 use Slim\Psr7\Stream;
 
 class ReceiptController
@@ -23,13 +23,14 @@ class ReceiptController
         private readonly Filesystem $filesystem,
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly ReceiptService $receiptService,
-        private readonly TransactionService $transactionService,
         private readonly EntityManagerServiceInterface $entityManagerService,
+        private readonly CacheInterface $cache
     ) {
     }
 
     public function store(Request $request, Response $response, Transaction $transaction): Response
     {
+        $this->cache->clear();
         /** @var UploadedFileInterface $file */
         $file     = $this->requestValidatorFactory->make(UploadReceiptRequestValidator::class)->validate(
             $request->getUploadedFiles()
@@ -48,6 +49,7 @@ class ReceiptController
 
     public function download(Response $response, Transaction $transaction, Receipt $receipt): Response
     {
+        $this->cache->clear();
         if ($receipt->getTransaction()->getId() !== $transaction->getId()) {
             return $response->withStatus(401);
         }
@@ -63,6 +65,7 @@ class ReceiptController
 
     public function delete(Response $response, Transaction $transaction, Receipt $receipt): Response
     {
+        $this->cache->clear();
         if ($receipt->getTransaction()->getId() !== $transaction->getId()) {
             return $response->withStatus(401);
         }
